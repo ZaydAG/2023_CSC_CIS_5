@@ -1,0 +1,685 @@
+/*
+ *  * File:   main.cpp
+ *   * Author: Zayd Abu-Ghazaleh
+ *    *
+ *     * Created on July 22, 2023, 7:32 AM
+ *      */
+
+#include <cstdlib>
+#include <vector>
+#include <fstream>
+#include <iostream>
+#include <iomanip>
+#include <ctime>
+#include <cmath>
+#include <cstring>
+using namespace std;
+//Prototypes
+void generate(int&,int&,int&,int&,char[][4],int&, int, int);
+float earncal(int&, int&);
+bool diffi(string);
+void bsort(char array[][100],int rowIn,int colIn);
+void ssort(char array[][100],int rowIn,int colIn);
+int print(int&,int&,int,bool,bool,char[][4],int&,int&);
+int print(int,int&, int&,int,vector<int>);
+/*
+ *  *
+ *   */
+int main(int argc, char** argv) {
+     string diff; //Allows the user to choose the difficulty
+     string name; //Stores the user's name
+     char stattorf;//Stores the user's choice of seeing the leaderboard
+
+     int index; //Used for randomizing the sudoku table
+     int begin;//Used for storing the beginning time (Calculates points)
+     int end;//Used for storing the end time (Calculates points)
+     float points;//Used for storing the points
+     bool save;//Stores the user's choice of saving to the leaderboard
+     fstream stats; //Stores the stats for the leaderboard
+     char array[4][4];
+     vector<int> indexs;
+     int row;
+     int col;
+     static int rowcol;
+     bool check;
+     bool check2;
+     char players[100][100];
+     char gorl;
+        check2=true;
+     check=true;
+    srand(static_cast<int>(time(NULL)));
+     cout<<"Enter the difficulty(only 'easy' and 'hard' are available)."<<endl;
+     cin>>diff;
+     if(diffi(diff)){
+         diffi(diff);
+      if(diff=="easy"){
+         print(index,begin,end,points,indexs);
+         diff="easy";
+     }
+     if(diff=="hard"){
+         rowcol=4;
+     print(row,col,rowcol,check,check2,array,begin,end);
+     diff="hard";
+     }
+     }
+
+
+
+    points=end;
+    if(diff=="easy" || diff=="hard"){
+    cout<<"Would you like to save your stats to the leaderboard? (Type 'y' for yes and 'n' for no)"<<endl;
+        cin>>stattorf;
+        if(stattorf=='y'){
+            save=true;
+        }
+        else{
+        save=false;
+        }
+        if(save){
+        cout<<"Enter your name."<<endl;
+        cin>>name;        
+        stats.open("stats.txt", ios::app);
+        stats<<fixed<<setprecision(0)<<points<<" "<<name<<" "<<diff<<endl;
+        stats.close();
+        }
+        cout<<"Would you like to see the leaderboard? (Type 'y' for yes and 'n' for no)"<<endl;
+        cin>>stattorf;
+        if(stattorf=='y'){
+        stats.open("stats.txt", ios::in);
+        cout<<endl;
+	int i=0;
+        while(!stats.eof()){
+	  string line;
+	  int length;
+	  getline(stats, line);
+	  length = line.length();
+          strcpy(players[i++],line.c_str());  
+	}
+	cout<<"Would you like the leaderboard to be sorted from greatest to least or least to greatest?('g' for greatest to least and 'l' for least to greatest"<<endl;
+	cin>>gorl;
+	if(gorl=='l'){
+	ssort (players,i-1,i-1);
+	  }
+	  if(gorl=='g'){
+	    bsort (players,i-1,i-1);
+    }
+	for(int j=0;j<i-1;j++) {
+	  cout <<players[j]<<endl;
+        }
+	}
+	exit(0);
+}
+}
+
+   
+	
+
+void bsort(char array[][100],int rowIn,int colIn){
+    char swap[100];
+    for(int j=0; j<colIn; j++){
+    for(int i=1; i<rowIn-j; i++){
+    if(strcmp(array[i-1],array[i])<0){
+        strcpy(swap,array[i-1]);
+        strcpy(array[i-1],array[i]);
+        strcpy(array[i],swap);
+    }
+    }
+    }
+}
+
+ void ssort(char array[][100],int rowIn,int colIn){
+     char swap[100];
+     int smallest;
+     for(int j=0; j<colIn; j++){
+       smallest=j;
+     for(int i=j+1; i<rowIn; i++){
+       if(strcmp(array[i],array[smallest])<0){
+         smallest=i;
+       }
+     }
+     strcpy(swap,array[j]);
+     strcpy(array[j],array[smallest]);
+     strcpy(array[smallest],swap);
+     }
+ }
+
+int print(int& row,int& col,int rowcol,bool check,bool check2,char array[][4], int& begin, int& end){
+    int points;
+    int value=rand()%2;
+    int value2=rand()%2;
+    int value3=rand()%2;
+    int value4=rand()%2;
+    int index=rand()%2;
+   
+    begin=time(0);
+          for(int i=0; i<rowcol; i++){
+           for(int j=0; j<rowcol; j++){
+              array[i][j]='?';
+           }
+               }
+	  generate(value,value2,value3,value4,array,index,rowcol,3);
+               while(check){//While loop to make sure the game does not end early
+           
+        for(int i=0; i<rowcol; i++){
+            for(int y=0; y<rowcol; y++){
+            cout<<"|---| ";
+            }
+            cout<<endl;
+           for(int j=0; j<rowcol; j++){
+               cout<<"|"<<setw(2)<<array[i][j]<<" | ";
+               }
+                   cout<<endl;
+            for(int g=0; g<rowcol; g++){
+            cout<<"|---| ";
+            }
+                   cout<<endl;
+               }
+         
+        cout<<"Enter the row and column of the number you would like to place."<<endl;
+        cin>>row>>col;
+        if(array[row-1][col-1]=='?'){
+            cout<<"Enter the number you would like to place."<<endl;
+            cin>>array[row-1][col-1];
+        }
+        else if(array[row-1][col-1]!='?'){
+                cout<<"This row and column already contains a number."<<endl;
+            }
+       
+        for(int i=0; i<rowcol; i++){
+        for(int y=1; y<=rowcol; y++){
+                for(int j=0; j<rowcol-1; j++){
+                    if(array[i][j]==y+'0' && array[i][j+1]==y+'0'){
+            cout<<"|-----| |------|"<<endl;
+            cout<<"| YOU | | LOSE |"<<endl;
+            cout<<"|-----| |------|"<<endl;
+                        return 0;
+                    }
+                }
+        }
+        }
+        for(int j=0; j<rowcol; j++){
+        for(int y=1; y<=rowcol; y++){
+                for(int i=0; i<rowcol-1; i++){
+                    if(array[i][j]==y+'0' && array[i+1][j]==y+'0'){
+            cout<<"|-----| |------|"<<endl;
+            cout<<"| YOU | | LOSE |"<<endl;
+            cout<<"|-----| |------|"<<endl;
+                        return 0;
+                    }
+                }
+        }
+        }
+	check2=true;
+        while(check2==true){
+          for(int i=0; i<rowcol; i++){
+                for(int j=0; j<rowcol; j++){
+                    if(array[i][j]=='?'){
+                        check2=false;
+                    }
+                    if(i==rowcol-1 && j==rowcol-1){
+                        if(array[i][j]=='?'){
+                        check2=false;
+                        }
+                        else{
+            for(int i=0; i<rowcol; i++){
+                for(int y=0; y<rowcol; y++){
+                    cout<<"|---| ";
+                    }
+            cout<<endl;
+           for(int j=0; j<rowcol; j++){
+               cout<<"|"<<setw(2)<<array[i][j]<<" | ";
+               }
+                   cout<<endl;
+            for(int g=0; g<rowcol; g++){
+            cout<<"|---| ";
+            }
+                   cout<<endl;
+               }
+            cout<<"|-----| |-----|"<<endl;
+            cout<<"| YOU | | WIN |"<<endl;
+            cout<<"|-----| |-----|"<<endl;
+             end=(time(0)-begin-10); //Calculates time passed
+             end=earncal(points,end);
+                        check2=false;
+                        return 1;
+                        }
+                    }
+                }
+            }
+        }
+        }
+    return 0;
+}
+
+float earncal(int& points, int& end){
+        points=((log(1.0/(end*100))+30)*40); //Calculates the points
+        for(int i=end; i>0; i--){//Calculates the points
+            points=points-10;
+        }
+        if(points>1000){//Calculates the points
+         points=999;
+        }
+        if(points<0)points=0;//Checks if points are negative and sets them to 0
+        if(points==0 || points<0){//Checks point range and uses iomanip to create the boxes
+        cout<<"|-----| |--------|  |"<<setfill('-')<<setw(13)<<"|"<<endl;
+        cout<<"| YOU | | EARNED |  |"<<fixed<<setprecision(0)<<" "<<"100"<<" POINTS |"<<endl;
+        cout<<"|-----| |--------|  |"<<setfill('-')<<setw(13)<<"|"<<endl;
+        }
+        else if(points<10 && points!=0){//Checks point range and uses iomanip to create the boxes
+        cout<<"|-----| |--------|  |"<<setfill('-')<<setw(13)<<"|"<<endl;
+        cout<<"| YOU | | EARNED |  |"<<fixed<<setprecision(0)<<" "<<"100"<<" POINTS |"<<endl;
+        cout<<"|-----| |--------|  |"<<setfill('-')<<setw(13)<<"|"<<endl;
+        }
+        else if(points>10 && points<100){//Checks point range and uses iomanip to create the boxes
+        cout<<"|-----| |--------|  |"<<setfill('-')<<setw(13)<<"|"<<endl;
+        cout<<"| YOU | | EARNED |  |"<<fixed<<setprecision(0)<<" "<<"100"<<" POINTS |"<<endl;
+        cout<<"|-----| |--------|  |"<<setfill('-')<<setw(13)<<"|"<<endl;
+        }
+        else if(points>100 && points<=1000){//Checks point range and uses iomanip to create the boxes
+        cout<<"|-----| |--------|  |"<<setfill('-')<<setw(13)<<"|"<<endl;
+        cout<<"| YOU | | EARNED |  |"<<fixed<<setprecision(0)<<" "<<points<<" POINTS |"<<endl;
+        cout<<"|-----| |--------|  |"<<setfill('-')<<setw(13)<<"|"<<endl;
+        }
+        return points;
+}
+void generate(int& value,int& value2,int& value3,int& value4,char array[][4],int& index, int rowcol, int rc=3){
+            for(int i=0; i<rc-1; i++){
+           index=rand()%2;
+           if(i==1){
+              if(array[i-1][index]!='?') {
+               while(array[i-1][index]!='?') {
+                    array[i][index]='?';
+                    index=rand()%2;
+                    array[i][index]=value+'1';
+               }
+             } else {
+               array[i][index]=value+'1';
+             }
+           }
+           else{
+             array[i][index]=value+'1';
+           }
+           value=1-value;
+         }
+
+         for(int i=2; i<4; i++){
+           index=rand()%2;
+             if(array[i-1][index]!='?') {
+                   while(array[i-1][index]!='?'){
+                        array[i][index]='?';
+                        index=rand()%2;
+                        array[i][index]=value2+'3';
+                               }
+                             } else {
+                        array[i][index]=value2+'3';
+                             }
+
+
+
+           value2=1-value2;
+         }
+
+         for(int i=0; i<2; i++){
+           index=rand()%2;
+           if(i==0){
+             for(int j=0; j<rowcol; j++){
+               if(array[i][j]==value3+'1'){
+                    value3=1-value3;
+               }
+             }
+           }
+           if(i==1){
+             if(array[i-1][index+2]!='?'){
+               while(array[i-1][index+2]!='?'){
+                    array[i][index+2]='?';
+                    index=rand()%2;
+                    array[i][index+2]=value3+'1';
+                           }
+
+             } else {
+        array[i][index+2]=value3+'1';
+             }
+
+           }
+           else{
+             array[i][index+2]=value3+'1';
+           }
+           value3=1-value3;
+         }
+         for(int i=2; i<4; i++){
+           index=rand()%2;
+           if(i==2){
+             for(int j=0; j<rowcol; j++){
+               if(array[i][j]==value4+'3'){
+                    value4=1-value4;
+               }
+             }
+           }
+             if(array[i-1][index+2]!='?'){
+               while(array[i-1][index+2]!='?'){
+                        array[i][index+2]='?';
+                        index=rand()%2;
+                        array[i][index+2]=value4+'3';
+                       }
+                     } else {
+                       array[i][index+2]=value4+'3';
+                     }
+                   value4=1-value4;
+         }
+
+
+}
+int print(int index, int& begin, int& end, int points,vector<int>indexs){
+    int onerow1;//The first number of the first row
+    int onerow2;//The second number of the first row
+    int onerow3;//The third number of the first row
+    int tworow1;//The first number of the second row
+    int tworow2;//The second number of the second row
+    int tworow3;//The third number of the second row
+    int thrrow1;//The first number of the third row
+    int thrrow2;//The second number of the third row
+    int thrrow3;//The third number of the third row
+    onerow1=0;//Sets the number to undetermined
+    onerow2=0;//Sets the number to undetermined
+    onerow3=0;//Sets the number to undetermined
+    tworow1=0;//Sets the number to undetermined
+    tworow2=0;//Sets the number to undetermined
+    tworow3=0;//Sets the number to undetermined
+    thrrow1=0;//Sets the number to undetermined
+    thrrow2=0;//Sets the number to undetermined
+    thrrow3=0;//Sets the number to undetermined
+    switch(index) {
+    case 0: onerow1=rand()%3+1; 
+      break;
+    case 1: onerow2=rand()%3+1;
+      break;
+    case 2: onerow3=rand()%3+1;
+    }
+    indexs.push_back(index);
+    int done = 0;
+
+     do{ //While loop for randomizing the number to make sure that numbers do not overlap
+    index = rand() % 3;
+    switch(index) {
+    case 0: tworow1=rand()%3+1;
+    if(onerow1==1 && tworow1==2 || onerow1==1 && tworow1==3 || onerow1==2 && tworow1==1 || onerow1==2 && tworow1==3 || onerow1==3 && tworow1==1 || onerow1==3 && tworow1==2){//Removes possibility of an impossible sudoku board
+        tworow1=0;
+        continue;
+    }
+    else if(tworow1 == onerow1 || tworow1 == onerow2 || tworow1 == onerow3) {//Makes sure the numbers do not overlap
+	tworow1=0;
+        continue;
+      } else { done = 1;}
+
+      break;
+    case 1: tworow2=rand()%3+1;
+    if(onerow2==1 && tworow2==2 || onerow2==1 && tworow2==3 || onerow2==2 && tworow2==1 || onerow2==2 && tworow2==3 || onerow2==3 && tworow2==1 || onerow2==3 && tworow2==2){//Removes possibility of an impossible sudoku board
+        tworow2=0;
+        continue;
+    }
+    else if(tworow2 == onerow2 || tworow2 == onerow1 || tworow2 == onerow3) {//Makes sure the numbers do not overlap
+	tworow2=0;
+        continue;
+      } else { done = 1;}
+
+      break;
+    case 2: tworow3=rand()%3+1;
+    if(onerow3==1 && tworow3==2 || onerow3==1 && tworow3==3 || onerow3==2 && tworow3==1 || onerow3==2 && tworow3==3 || onerow3==3 && tworow3==1 || onerow3==3 && tworow3==2){//Removes possibility of an impossible sudoku board
+        tworow3=0;
+        continue;
+    }
+    else if(tworow3 == onerow3 || tworow3 == onerow1 || tworow3 == onerow2) {//Makes sure the numbers do not overlap
+	tworow3=0;
+        continue;
+      } else { done = 1;}
+      break;
+    }
+    }while(!done);
+
+done = 0;
+
+    while(!done) {
+    index = rand() % 3;
+    switch(index) {
+    case 0: thrrow1=rand()%3+1;
+    if(tworow1==1 && thrrow1==2 || tworow1==1 && thrrow1==3 || tworow1==2 && thrrow1==1 || tworow1==2 && thrrow1==3 || tworow1==3 && thrrow1==1 || tworow1==3 && thrrow1==2){//Removes possibility of an impossible sudoku board
+        thrrow1=0;
+        continue;
+    }
+    else if(onerow1==1 && thrrow1==2 || onerow1==1 && thrrow1==3 || onerow1==2 && thrrow1==1 || onerow1==2 && thrrow1==3 || onerow1==3 && thrrow1==1 || onerow1==3 && thrrow1==2){//Removes possibility of an impossible sudoku board
+        thrrow1=0;
+        continue;
+    }
+    else if(thrrow1 == onerow1 || thrrow1==onerow2 || thrrow1 == onerow3 || thrrow1 == tworow1 || thrrow1==tworow2 || thrrow1 == tworow3) {//Removes possibility of an impossible sudoku board
+	thrrow1=0;
+        continue;
+      } else { done = 1;}
+
+      break;
+    case 1: thrrow2=rand()%3+1;
+      if(tworow2==1 && thrrow2==2 || tworow2==1 && thrrow2==3 || tworow2==2 && thrrow2==1 || tworow2==2 && thrrow2==3 || tworow2==3 && thrrow2==1 || tworow2==3 && thrrow2==2){//Removes possibility of an impossible sudoku board
+        thrrow2=0;
+        continue;
+    }
+    else if(onerow2==1 && thrrow2==2 || onerow2==1 && thrrow2==3 || onerow2==2 && thrrow2==1 || onerow2==2 && thrrow2==3 || onerow2==3 && thrrow2==1 || onerow2==3 && thrrow2==2){//Removes possibility of an impossible sudoku board
+        thrrow2=0;
+        continue;
+    }
+    else if(thrrow2 == onerow2 || thrrow2==onerow1 || thrrow2==onerow3 || thrrow2 == tworow2 || thrrow2 == tworow1 || thrrow2 == tworow3) {//Removes possibility of an impossible sudoku board
+	thrrow2=0;
+        continue;
+      } else { done = 1;}
+
+      break;
+    case 2: thrrow3=rand()%3+1;
+     if(tworow3==1 && thrrow3==2 || tworow3==1 && thrrow3==3 || tworow3==2 && thrrow3==1 || tworow3==2 && thrrow3==3 || tworow3==3 && thrrow3==1 || tworow3==3 && thrrow3==2){//Removes possibility of an impossible sudoku board
+        thrrow3=0;
+        continue;
+    }
+    else if(onerow3==1 && thrrow3==2 || onerow3==1 && thrrow3==3 || onerow3==2 && thrrow3==1 || onerow3==2 && thrrow3==3 || onerow3==3 && thrrow3==1 || onerow3==3 && thrrow3==2){//Removes possibility of an impossible sudoku board
+        thrrow3=0;
+        continue;
+    }
+    else if(thrrow3 == onerow3 || thrrow3 == onerow1 || thrrow3 == onerow2 || thrrow3 == tworow3 || thrrow3 == tworow1 || thrrow3 == tworow2) {//Removes possibility of an impossible sudoku board
+	thrrow3=0;
+        continue;
+      } else { done = 1;}
+      break;
+    }
+    }
+cout<<"For this game, the number 0 indicates that the number in that position is empty."<<endl;
+        begin=time(0);
+        while(onerow1==0 || onerow2==0 || onerow3==0 || tworow1==0 || tworow2==0 || tworow3==0 || thrrow1==0 || thrrow2==0 || thrrow3==0){//While loop to make sure the game does not end early
+        cout<<"|---| |---| |---|"<<endl;
+        cout<<"| "<<onerow1<<" | "<<"| "<<onerow2<<" | "<<"| "<<onerow3<<" |"<<endl;
+        cout<<"|---| |---| |---|"<<endl<<endl;
+        cout<<"|---| |---| |---|"<<endl;
+        cout<<"| "<<tworow1<<" | "<<"| "<<tworow2<<" | "<<"| "<<tworow3<<" |"<<endl;
+        cout<<"|---| |---| |---|"<<endl<<endl;
+        cout<<"|---| |---| |---|"<<endl;
+        cout<<"| "<<thrrow1<<" | "<<"| "<<thrrow2<<" | "<<"| "<<thrrow3<<" | "<<endl;
+        cout<<"|---| |---| |---|"<<endl<<endl;
+            if(onerow1==0){
+                while(onerow1==0 || onerow1>3 || onerow1<0){
+            cout<<"What would you like the first number of the first row to be?"<<endl;
+            cin>>onerow1;
+            if(onerow1==0 || onerow1>3 || onerow1<0){
+                cout<<"This is not a valid number."<<endl;
+                cout<<"Enter a number ranging from 1 to 3."<<endl;
+                cin>>onerow1;
+            }
+        }
+
+            if(onerow2!=0 && onerow1==onerow2 || onerow3!=0 && onerow1==onerow3 || tworow1!=0 && onerow1==tworow1 || thrrow1!=0 && onerow1==thrrow1){//Checks if user overlaps numbers, loses the game
+                cout<<"|-----| |------|"<<endl;
+                cout<<"| YOU | | LOSE |"<<endl;
+                cout<<"|-----| |------|"<<endl;
+                return 0;
+            }
+        }
+            else if(onerow2==0){
+                while(onerow2==0 || onerow2>3 || onerow2<0){
+            cout<<"What would you like the second number of the first row to be?"<<endl;
+            cin>>onerow2;
+            if(onerow2==0 || onerow2>3 || onerow2<0){
+                cout<<"This is not a valid number."<<endl;
+                cout<<"Enter a number ranging from 1 to 3."<<endl;
+                cin>>onerow2;
+            }
+                }
+            if(onerow1!=0 && onerow2==onerow1 || onerow3!=0 && onerow2==onerow3 || tworow2!=0 && onerow2==tworow2 || thrrow2!=0 && onerow2==thrrow2){//Checks if user overlaps numbers, loses the game
+                cout<<"|-----| |------|"<<endl;
+                cout<<"| YOU | | LOSE |"<<endl;
+                cout<<"|-----| |------|"<<endl;
+                return 0;
+            }
+        }
+        else if(onerow3==0){
+                while(onerow3==0 || onerow3>3 || onerow3<0){
+            cout<<"What would you like the third number of the first row to be?"<<endl;
+            cin>>onerow3;
+            if(onerow3==0 || onerow3>3 || onerow3<0){
+                cout<<"This is not a valid number."<<endl;
+                cout<<"Enter a number ranging from 1 to 3."<<endl;
+                cin>>onerow3;
+            }
+                } 
+            if(onerow1!=0 && onerow3==onerow1 || onerow2!=0 && onerow3==onerow2 || tworow3!=0 && onerow3==tworow3 || thrrow3!=0 && onerow3==thrrow3){//Checks if user overlaps numbers, loses the game
+                cout<<"|-----| |------|"<<endl;
+                cout<<"| YOU | | LOSE |"<<endl;
+                cout<<"|-----| |------|"<<endl;
+                return 0;
+            }
+        }
+        else if(tworow1==0){
+                while(tworow1==0 || tworow1>3 || tworow1<0){
+            cout<<"What would you like the first number of the second row to be?"<<endl;
+            cin>>tworow1;
+            if(tworow1==0 || tworow1>3 || tworow1<0){
+                cout<<"This is not a valid number."<<endl;
+                cout<<"Enter a number ranging from 1 to 3."<<endl;
+                cin>>tworow1;
+            }
+                }   
+            if(tworow2!=0 && tworow1==tworow2 || tworow3!=0 && tworow1==tworow3 || onerow1!=0 && tworow1==onerow1 || thrrow1!=0 && tworow1==thrrow1){//Checks if user overlaps numbers, loses the game
+                cout<<"|-----| |------|"<<endl;
+                cout<<"| YOU | | LOSE |"<<endl;
+                cout<<"|-----| |------|"<<endl;
+                return 0;
+            }
+        }
+        else if(tworow2==0){
+                while(tworow2==0 || tworow2>3 || tworow2<0){
+            cout<<"What would you like the second number of the second row to be?"<<endl;
+            cin>>tworow2;
+            if(tworow2==0 || tworow2>3 || tworow2<0){
+                cout<<"This is not a valid number."<<endl;
+                cout<<"Enter a number ranging from 1 to 3."<<endl;
+                cin>>tworow2;
+            }
+                }   
+            if(tworow1!=0 && tworow2==tworow1 || tworow3!=0 && tworow1==tworow3 || onerow2!=0 && tworow2==onerow2 || thrrow2!=0 && tworow2==thrrow2){//Checks if user overlaps numbers, loses the game
+                cout<<"|-----| |------|"<<endl;
+                cout<<"| YOU | | LOSE |"<<endl;
+                cout<<"|-----| |------|"<<endl;
+                return 0;
+            }
+        }
+        else if(tworow3==0){
+                while(tworow3==0 || tworow3>3 || tworow3<0){
+            cout<<"What would you like the third number of the second row to be?"<<endl;
+            cin>>tworow3;
+            if(tworow3==0 || tworow3>3 || tworow3<0){
+                cout<<"This is not a valid number."<<endl;
+                cout<<"Enter a number ranging from 1 to 3."<<endl;
+                cin>>tworow3;
+            }
+                }  
+            if(tworow1!=0 && tworow3==tworow1 || tworow2!=0 && tworow3==tworow2 || onerow3!=0 && tworow3==onerow3 || thrrow3!=0 && tworow3==thrrow3){//Checks if user overlaps numbers, loses the game
+                cout<<"|-----| |------|"<<endl;
+                cout<<"| YOU | | LOSE |"<<endl;
+                cout<<"|-----| |------|"<<endl;
+                return 0;
+            }
+        }
+        else if(thrrow1==0){
+                while(thrrow1==0 || thrrow1>3 || thrrow1<0){
+            cout<<"What would you like the first number of the third row to be?"<<endl;
+            cin>>thrrow1;
+            if(thrrow1==0 || thrrow1>3 || thrrow1<0){
+                cout<<"This is not a valid number."<<endl;
+                cout<<"Enter a number ranging from 1 to 3."<<endl;
+                cin>>thrrow1;
+            }
+                }
+            if(thrrow2!=0 && thrrow1==thrrow2 || thrrow3!=0 && thrrow1==thrrow3 || onerow1!=0 && thrrow1==onerow1 || tworow1!=0 && thrrow1==tworow1){//Checks if user overlaps numbers, loses the game
+                cout<<"|-----| |------|"<<endl;
+                cout<<"| YOU | | LOSE |"<<endl;
+                cout<<"|-----| |------|"<<endl;
+                return 0;
+            }
+        }
+        else if(thrrow2==0){
+                while(thrrow2==0 || thrrow2>3 || thrrow2<0){
+            cout<<"What would you the second number of the third row to be?"<<endl;
+            cin>>thrrow2;
+            if(thrrow2==0 || thrrow2>3 || thrrow2<0){
+                cout<<"This is not a valid number."<<endl;
+                cout<<"Enter a number ranging from 1 to 3."<<endl;
+                cin>>thrrow2;
+            }
+                }  
+            if(thrrow1!=0 && thrrow2==thrrow1 || thrrow3!=0 && thrrow2==thrrow3 || onerow2!=0 && thrrow2==onerow2 || tworow2!=0 && thrrow2==tworow2){//Checks if user overlaps numbers, loses the game
+                cout<<"|-----| |------|"<<endl;
+                cout<<"| YOU | | LOSE |"<<endl;
+                cout<<"|-----| |------|"<<endl;
+                return 0;
+            }
+        }
+        else if(thrrow3==0){
+                while(thrrow3==0 || thrrow3>3 || thrrow3<0){
+            cout<<"What would you like the third number of the third row to be?"<<endl;
+            cin>>thrrow3;
+            if(thrrow3==0 || thrrow3>3 || thrrow3<0){
+                cout<<"This is not a valid number."<<endl;
+                cout<<"Enter a number ranging from 1 to 3."<<endl;
+                cin>>thrrow3;
+            }
+                }   
+        }
+            if(thrrow1!=0 && thrrow3==thrrow1 || thrrow2!=0 && thrrow3==thrrow2 || onerow3!=0 && thrrow3==onerow3 || tworow3!=0 && thrrow3==tworow3){//Checks if user overlaps numbers, loses the game
+                cout<<"|-----| |------|"<<endl;
+                cout<<"| YOU | | LOSE |"<<endl;
+                cout<<"|-----| |------|"<<endl;
+                return 0;
+            }
+        }
+       
+        if(onerow1!=0 && onerow2!=0 && onerow3!=0 && tworow1!=0 && tworow2!=0 && tworow3!=0 && thrrow1!=0 && thrrow2!=0 && thrrow3!=0){//Checks if board has no more 0s, wins the game
+            cout<<"|---| |---| |---|"<<endl;
+            cout<<"| "<<onerow1<<" | "<<"| "<<onerow2<<" | "<<"| "<<onerow3<<" |"<<endl;
+            cout<<"|---| |---| |---|"<<endl<<endl;
+            cout<<"|---| |---| |---|"<<endl;
+            cout<<"| "<<tworow1<<" | "<<"| "<<tworow2<<" | "<<"| "<<tworow3<<" |"<<endl;
+            cout<<"|---| |---| |---|"<<endl<<endl;
+            cout<<"|---| |---| |---|"<<endl;
+            cout<<"| "<<thrrow1<<" | "<<"| "<<thrrow2<<" | "<<"| "<<thrrow3<<" | "<<endl;
+            cout<<"|---| |---| |---|"<<endl<<endl; 
+            cout<<"|-----| |-----|"<<endl;
+            cout<<"| YOU | | WIN |"<<endl;
+            cout<<"|-----| |-----|"<<endl;
+        end=(time(0)-begin);
+        end=earncal(points,end);
+        }
+        
+        return 0;
+}
+bool diffi(string diff){
+    if(diff=="easy" || diff=="hard"){
+        return true;
+    }
+    else{
+        cout<<"This difficulty does not exist."<<endl;
+        return false;
+    }
+}
